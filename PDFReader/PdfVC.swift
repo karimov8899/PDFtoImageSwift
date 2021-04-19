@@ -19,7 +19,9 @@ class PdfVC: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         showPDF()
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Сохранить", style: .plain, target: self, action: #selector(addTapped))
+        let img = UIBarButtonItem(title: "IMG", style: .plain, target: self, action: #selector(addTapped))
+        let pdf = UIBarButtonItem(title: "PDF", style: .plain, target: self, action: #selector(addPDFTapped))
+        navigationItem.rightBarButtonItems = [img, pdf]
     }
      
     //Открытие PDF файла
@@ -75,6 +77,30 @@ class PdfVC: UIViewController {
         }
     }
     
+    func pdfToPDFLogic() {
+        let pdfDocument = PDFDocument(url: URL(fileURLWithPath: selectedUrl.path))!
+        
+        func savingToPDF(pages: Int) {
+            guard let page = pdfDocument.page(at: pages) else {return}
+            let new = PDFDocument(data: page.dataRepresentation!)
+            let dir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+            let fileURL = dir.appendingPathComponent("\(UUID().uuidString).pdf")
+            do {
+                try new?.write(to: fileURL)
+                let ac = UIAlertController(title: "Saved!", message: "Your PDF pages saved.", preferredStyle: .alert)
+                ac.addAction(UIAlertAction(title: "OK", style: .default))
+                present(ac, animated: true)
+            }
+            catch {
+                print("Error: \(error)")
+            }
+        }
+        
+        for page in 0...allPages {
+            savingToPDF(pages: page)
+        }
+    }
+    
     //Обработка сохранения изображения
     
     @objc func image(_ image: UIImage, didFinishSavingWithError error: Error?, contextInfo: UnsafeRawPointer) {
@@ -93,5 +119,9 @@ class PdfVC: UIViewController {
     // Логика Кнопки сохранить
     @objc func addTapped() {
         pdfToImageLogic()
+    }
+    
+    @objc func addPDFTapped() {
+        pdfToPDFLogic()
     }
 }

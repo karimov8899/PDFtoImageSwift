@@ -65,7 +65,7 @@
 	<key>UIFileSharingEnabled</key>
 	<true/>
 	<key>LSSupportsOpeningDocumentsInPlace</key>
-	<false/>
+	<true/>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>&quot;App needs to use photo Album for Saving PDF&quot;</string>
 </dict>
