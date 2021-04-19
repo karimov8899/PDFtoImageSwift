@@ -1,0 +1,22 @@
+PODS:
+  - PSPDFKit (10.3.0):
+    - PSPDFKit/Core (= 10.3.0)
+  - PSPDFKit/Core (10.3.0)
+  - SnapKit (5.0.1)
+
+DEPENDENCIES:
+  - PSPDFKit
+  - SnapKit
+
+SPEC REPOS:
+  trunk:
+    - PSPDFKit
+    - SnapKit
+
+SPEC CHECKSUMS:
+  PSPDFKit: b0c092464944b80ea44388aed09d934741999924
+  SnapKit: 97b92857e3df3a0c71833cce143274bf6ef8e5eb
+
+PODFILE CHECKSUM: cc897063826fe8773a1df02d0fdd8357a98fef2d
+
+COCOAPODS: 1.10.0
