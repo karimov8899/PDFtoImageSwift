@@ -47,35 +47,59 @@ class PdfVC: UIViewController {
     }
     
     // Логика для сохранения Изображений из PDF
-    
     func pdfToImageLogic() {
         func savePDFtoImg(page: Int) {
-            let document = Document(url: selectedUrl)
-            let pageIndex: PageIndex = PageIndex(page)
-            guard let pageImageSize = document.pageInfoForPage(at: pageIndex)?.mediaBox.size else { return }
-
-            // Create a render request from your `Document`.
-            let request = MutableRenderRequest(document: document)
-            request.imageSize = pageImageSize
-            request.pageIndex = pageIndex
-
-            do {
-                // Create a render task using the `MutableRenderRequest`.
-                let task = try RenderTask(request: request)
-                task.priority = .utility
-                PSPDFKit.SDK.shared.renderManager.renderQueue.schedule(task)
-
-                // The page is rendered as a `UIImage`.
-                let image = try PSPDFKit.SDK.shared.cache.image(for: request, imageSizeMatching: [.allowLarger])
-                UIImageWriteToSavedPhotosAlbum(image, self, #selector(image(_:didFinishSavingWithError:contextInfo:)), nil)
-            } catch {
-                // Handle error.
+            let url = URL(fileURLWithPath: selectedUrl.path)
+            guard let document = CGPDFDocument(url as CFURL) else { return }
+            guard let page = document.page(at: page) else { return }
+            // Fetch the page rect for the page we want to render.
+            let pageRect = page.getBoxRect(.mediaBox)
+            let renderer = UIGraphicsImageRenderer(size: pageRect.size)
+            let img = renderer.image { ctx in
+                // Set and fill the background color.
+                UIColor.white.set()
+                ctx.fill(pageRect)
+                
+                ctx.cgContext.translateBy(x: 0.0, y: pageRect.size.height)
+                ctx.cgContext.scaleBy(x: 1.0, y: -1.0)
+                
+                ctx.cgContext.drawPDFPage(page)
             }
+            UIImageWriteToSavedPhotosAlbum(img, self, #selector(image(_:didFinishSavingWithError:contextInfo:)), nil)
         }
+        
         for page in 0...allPages {
             savePDFtoImg(page: page)
         }
     }
+//    func pdfToImageLogic() {
+//        func savePDFtoImg(page: Int) {
+//            let document = Document(url: selectedUrl)
+//            let pageIndex: PageIndex = PageIndex(page)
+//            guard let pageImageSize = document.pageInfoForPage(at: pageIndex)?.mediaBox.size else { return }
+//
+//            // Create a render request from your `Document`.
+//            let request = MutableRenderRequest(document: document)
+//            request.imageSize = pageImageSize
+//            request.pageIndex = pageIndex
+//
+//            do {
+//                // Create a render task using the `MutableRenderRequest`.
+//                let task = try RenderTask(request: request)
+//                task.priority = .utility
+//                PSPDFKit.SDK.shared.renderManager.renderQueue.schedule(task)
+//
+//                // The page is rendered as a `UIImage`.
+//                let image = try PSPDFKit.SDK.shared.cache.image(for: request, imageSizeMatching: [.allowLarger])
+//                UIImageWriteToSavedPhotosAlbum(image, self, #selector(image(_:didFinishSavingWithError:contextInfo:)), nil)
+//            } catch {
+//                // Handle error.
+//            }
+//        }
+//        for page in 0...allPages {
+//            savePDFtoImg(page: page)
+//        }
+//    }
     
     func pdfToPDFLogic() {
         let pdfDocument = PDFDocument(url: URL(fileURLWithPath: selectedUrl.path))!
